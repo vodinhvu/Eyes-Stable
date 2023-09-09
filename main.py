@@ -51,6 +51,10 @@ if __name__ == '__main__':
 
     model_ft = model_ft.to(device)
 
+    total_params = sum(p.numel() for p in model_ft.parameters())
+    requires_grad_params = sum(p.numel() for p in model_ft.parameters() if p.requires_grad)
+    print('total_params {}, requires_grad_params {}'.format(total_params, requires_grad_params))
+
     criterion = torch.nn.CrossEntropyLoss()
 
     # Observe that all parameters are being optimized
