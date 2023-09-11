@@ -74,8 +74,8 @@ if __name__ == '__main__':
     # with TemporaryDirectory() as tempdir:
     best_model_params_path = os.path.join(opt.save, 'best_model_params.pt')
 
-    conf_mat_fn = torchmetrics.ConfusionMatrix(task='binary', num_classes=2)
-    accuracy_fn = torchmetrics.Accuracy(task='binary', num_classes=2)
+    conf_mat_fn = torchmetrics.ConfusionMatrix(task='binary', num_classes=2).to(device)
+    accuracy_fn = torchmetrics.Accuracy(task='binary', num_classes=2).to(device)
 
     best_acc = 0.0
     for epoch in range(opt.epochs):
