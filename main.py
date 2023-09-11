@@ -6,7 +6,6 @@ import torch
 import tqdm
 from torchvision import transforms, datasets, models
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--image', '-i', type=str, default='datasets/hymenoptera_data')
@@ -43,9 +42,17 @@ if __name__ == '__main__':
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    model_ft = models.Inception3(num_classes=len(class_names), aux_logits=False, init_weights=True)
+    model_ft = models.resnet18(weights='IMAGENET1K_V1')
 
+    num_features = model_ft.fc.in_features
+    model_ft.fc = torch.nn.Sequential(torch.nn.Linear(num_features, len(class_names)), torch.nn.Softmax())
     model_ft = model_ft.to(device)
+
+    i = 0
+    for params in model_ft.parameters():
+        i += 1
+        if i < 200:
+            params.requires_grad = False
 
     total_params = sum(p.numel() for p in model_ft.parameters())
     requires_grad_params = sum(p.numel() for p in model_ft.parameters() if p.requires_grad)
@@ -57,7 +64,7 @@ if __name__ == '__main__':
     optimizer_ft = torch.optim.Adam(model_ft.parameters(), lr=0.001)
 
     # Decay LR by a factor of 0.1 every 7 epochs
-    exp_lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
+    exp_lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer_ft, step_size=1, gamma=0.1, verbose=True)
 
     since = time.time()
 
@@ -77,7 +84,7 @@ if __name__ == '__main__':
             if phase == 'train':
                 model_ft.train()  # Set model to training mode
             else:
-                model_ft.eval()   # Set model to evaluate mode
+                model_ft.eval()  # Set model to evaluate mode
 
             running_loss = 0.0
             running_corrects = 0
@@ -106,9 +113,7 @@ if __name__ == '__main__':
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
-                process.set_postfix({'loss': loss.item(), 'lr': exp_lr_scheduler.get_last_lr()[0]})
-            if phase == 'train':
-                exp_lr_scheduler.step()
+                process.set_postfix({'loss': loss.item()})
 
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_corrects.double() / dataset_sizes[phase]
@@ -122,11 +127,9 @@ if __name__ == '__main__':
                     best_acc = epoch_acc
                     torch.save(model_ft.state_dict(), best_model_params_path)
 
+        exp_lr_scheduler.step()
+        time_elapsed = time.time() - since
+        print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
         print()
 
-    time_elapsed = time.time() - since
-    print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
     print(f'Best val Acc: {best_acc:4f}')
-
-    # load best model weights
-    # model_ft.load_state_dict(torch.load(best_model_params_path))
