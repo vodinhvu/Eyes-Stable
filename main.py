@@ -74,12 +74,10 @@ if __name__ == '__main__':
     # with TemporaryDirectory() as tempdir:
     best_model_params_path = os.path.join(opt.save, 'best_model_params.pt')
 
-    torch.save(model_ft.state_dict(), best_model_params_path)
-    best_acc = 0.0
-
     conf_mat_fn = torchmetrics.ConfusionMatrix(task='binary', num_classes=2)
     accuracy_fn = torchmetrics.Accuracy(task='binary', num_classes=2)
 
+    best_acc = 0.0
     for epoch in range(opt.epochs):
         print(f'Epoch {epoch}/{opt.epochs - 1}')
         print('-' * 10)
@@ -115,7 +113,8 @@ if __name__ == '__main__':
             labels = labels.to(device)
             with torch.set_grad_enabled(False):
                 outputs = model_ft.forward(inputs)
-                accuracy = accuracy_fn(outputs, labels)
+                _, preds = torch.max(outputs, 1)
+                accuracy = accuracy_fn(outputs, preds)
                 all_preds.append(outputs.tolist())
                 all_labels.append(labels.tolist())
                 process.set_postfix({'accuracy': accuracy.item()})
