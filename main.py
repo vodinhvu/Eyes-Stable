@@ -114,8 +114,8 @@ if __name__ == '__main__':
             with torch.set_grad_enabled(False):
                 outputs = model_ft.forward(inputs)
                 _, preds = torch.max(outputs, 1)
-                accuracy = accuracy_fn(outputs, preds)
-                all_preds.append(outputs.tolist())
+                accuracy = accuracy_fn(preds, labels)
+                all_preds.append(preds.tolist())
                 all_labels.append(labels.tolist())
                 process.set_postfix({'accuracy': accuracy.item()})
         all_preds_tensors = torch.tensor(all_preds, device=device)
