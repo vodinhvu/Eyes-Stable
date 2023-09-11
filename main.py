@@ -34,7 +34,7 @@ if __name__ == '__main__':
                                               data_transforms[x])
                       for x in ['train', 'val']}
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=opt.batch,
-                                                  shuffle=True)
+                                                  shuffle=True, num_workers=12)
                    for x in ['train', 'val']}
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
     class_names = image_datasets['train'].classes
