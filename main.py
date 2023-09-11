@@ -43,11 +43,7 @@ if __name__ == '__main__':
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    model_ft = models.resnet18(weights='IMAGENET1K_V1')
-    num_ftrs = model_ft.fc.in_features
-    # Here the size of each output sample is set to 2.
-    # Alternatively, it can be generalized to ``nn.Linear(num_ftrs, len(class_names))``.
-    model_ft.fc = torch.nn.Linear(num_ftrs, len(class_names))
+    model_ft = models.Inception3(num_classes=len(class_names), aux_logits=False, init_weights=True)
 
     model_ft = model_ft.to(device)
 
