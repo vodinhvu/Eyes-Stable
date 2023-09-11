@@ -12,6 +12,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', '-e', type=int, default=3)
     parser.add_argument('--save', '-s', type=str, default='models')
     parser.add_argument('--batch', '-b', type=int, default=4)
+    parser.add_argument('--num_workers', '-n', type=int, default=2)
     opt = parser.parse_args()
 
     data_transforms = {
@@ -33,7 +34,7 @@ if __name__ == '__main__':
                                               data_transforms[x])
                       for x in ['train', 'val']}
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=opt.batch,
-                                                  shuffle=True, num_workers=12)
+                                                  shuffle=True, num_workers=opt.num_workers)
                    for x in ['train', 'val']}
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
     class_names = image_datasets['train'].classes
@@ -51,7 +52,7 @@ if __name__ == '__main__':
     i = 0
     for params in model_ft.parameters():
         i += 1
-        if i < 200:
+        if i < 50:
             params.requires_grad = False
 
     total_params = sum(p.numel() for p in model_ft.parameters())
