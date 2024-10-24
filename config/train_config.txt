@@ -1,0 +1,6 @@
+DATASET_URL=http://example.com/path/to/your/dataset.zip
+IMAGE_DIR=datasets/hymenoptera_data
+EPOCHS=3
+SAVE_DIR=models
+BATCH=4
+NUM_WORKERS=2
